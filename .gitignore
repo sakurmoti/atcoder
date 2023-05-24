@@ -1,0 +1,7 @@
+.vscode/
+include/
+
+*.exe
+
+temp.cpp
+sample.cpp
