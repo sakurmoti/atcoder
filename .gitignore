@@ -3,5 +3,6 @@ include/
 
 *.exe
 
+test.cpp
 temp.cpp
 sample.cpp
