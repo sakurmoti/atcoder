@@ -5,28 +5,28 @@ int main(){
     int N;
     cin >> N;
 
-    vector<int> A(N+1);
-    for(int i = 1; i <= N; i++) cin >> A.at(i);
+    vector<int> A(N);
+    for(auto &v : A) cin >> v;
 
-    int Q;
-    cin >> Q;
-
+    int Q; cin >> Q;
     for(int i = 0; i < Q; i++){
-        int sign;
-        cin >> sign;
+        int cmd; cin >> cmd;
 
-        if(sign == 1){
+        if(cmd == 1){
             int k,x;
             cin >> k >> x;
+            k--;
+
             A.at(k) = x;
-
-        }else if(sign == 2){
-            int k;
-            cin >> k;
-            cout << A.at(k) << endl;
-
         }
 
+        if(cmd == 2){
+            int k;
+            cin >> k;
+            k--;
+            cout << A.at(k) << endl;
+        }
     }
+
     return 0;
 }
