@@ -11,7 +11,7 @@ int main(){
     }
 
     set<int> color;
-    int any;
+    int any=0;
     for(int i = 0; i < N; i++){
         int rate = a.at(i)/400;
 

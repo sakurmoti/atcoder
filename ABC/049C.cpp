@@ -8,7 +8,7 @@ int main(){
     reverse(S.begin(), S.end());
     vector<string> cut = {"maerd", "remaerd", "esare", "resare"};
     
-    for(int i = 0; i < S.size();){
+    for(int i = 0; i < (int)S.size();){
         bool flag = false;
         for(int j = 0; j < 4; j++){
             if(S.substr(i, cut.at(j).size()) == cut.at(j)){
