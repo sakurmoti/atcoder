@@ -12,11 +12,13 @@ int main(){
     for(int i = 1; i <= N; i++){
         cin >> C[i];
     }
-    mint ans = 0;
+
+    mint ans = 1;
     sort(C.begin(), C.end());
     for(int i = 1; i <= N; i++){
-        ans *= (C[i]-(i-1)+(C[i]-C[i-1]));
+        ans = ans*(C[i]-(i-1));
     }
-    cout << ans << endl;
+    
+    cout << ans.val() << endl;
     return 0;
 }
