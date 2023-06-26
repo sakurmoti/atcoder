@@ -2,36 +2,6 @@
 using namespace std;
 using ll = long long;
 
-
-bool check(vector<vector<char>> &A, vector<string> &B){
-    for(int stH = 0; stH < A.size(); stH++){
-        for(int stW = 0; stW < A[0].size(); stW++){
-            
-            bool flag = true;
-            for(int i = 0; (i < B.size())&&flag; i++){
-                for(int j = 0; (j < B[0].size())&&flag; j++){
-                    int h = stH + i;
-                    int w = stW + j;
-
-                    if(h < 0 || w < 0 || A.size() <= h || A[0].size() <= w){
-                        flag = false;
-                        continue;
-                    }
-
-                    if(A.at(h).at(w) != B.at(i).at(j)){
-                        flag = false;
-                    }
-                }
-            }
-
-            if(flag) return true;
-        }
-    }
-
-    return false;
-    
-}
-
 int main(){
     int Ha,Wa; cin >> Ha >> Wa;
     vector<string> A(Ha);
@@ -41,38 +11,61 @@ int main(){
     vector<string> B(Hb);
     for(auto &v : B) cin >> v;
 
-    int Hx,Wx; cin >> Hx >> Wx;
-    vector<string> X(Hx);
-    for(auto &v : X) cin >> v;
+    int Hc,Wc; cin >> Hc >> Wc;
+    vector<string> C(Hc);
+    for(auto &v : C) cin >> v;
 
-    //Aを動かす必要はなく、Bのみ動かして全探索
-    for(int stH = -20; stH < 20; stH++){
-        for(int stW = -20; stW < 20; stW++){
+    auto domain = [&](int x, int y) {return (0 <= x && x < Wc && 0 <= y && y < Hc);};
+
+    for(int aX = -15; aX <= 15; aX++){
+        for(int aY = -15; aY <= 15; aY++){
+            // Aの開始位置(左上)を決める
             
-            for(int i = 0; i < Hb; i++){
-                //空間CにAを貼り付け
-                vector<vector<char>> C(100,vector<char>(100, '.'));
-                for(int h = 0; h < Ha; h++){
-                    for(int w = 0; w < Wa; w++){
-                        C[50+h][50+w] = A[h][w];
+            for(int bX = -15; bX <= 15; bX++){
+                for(int bY = -15; bY <= 15; bY++){
+                    bool ans = true;
+                    // Bの開始位置(左上)を決める
+                    
+                    vector<vector<char>> D(Hc, vector<char>(Wc, '.'));
+                    for(int i = 0; i < Ha; i++){
+                        for(int j = 0; j < Wa; j++){
+                            if(domain(aX+j,aY+i)){
+                                D.at(aY+i).at(aX+j) = A[i][j];
+                            
+                            }else if(A[i][j] == '#'){
+                                //黒のマスが外にあるのでダメ
+                                ans = false;
+                            }
+                        }
                     }
-                }
+                    for(int i = 0; i < Hb; i++){
+                        for(int j = 0; j < Wb; j++){
+                            if(domain(bX+j,bY+i)){
+                                D.at(bY+i).at(bX+j) = B[i][j];
+                            
+                            }else if(B[i][j] == '#'){
+                                ans = false;
+                            }
+                        }
+                    }
 
-                //空間CにBを貼り付け
-                for(int j = 0; j < Wb; j++){
-                    int h = stH + i + 50;
-                    int w = stW + j + 50;
-                    if(C.at(h).at(w) == '.') C[h][w] = B[i][j];
-                }
+                    //走査
+                    for(int i = 0; i < Hc; i++){
+                        for(int j = 0; j < Wc; j++){
+                            if(D[i][j] != C[i][j]){
+                                ans = false;
+                            }
+                        }
+                    }
 
-                if(check(C,X)){
-                    cout << "Yes" << endl;
-                    return 0;
+                    if(ans){
+                        cout << "Yes" << endl;
+                        return 0;
+                    }
                 }
             }
         }
     }
-
     cout << "No" << endl;
     return 0;
 }
