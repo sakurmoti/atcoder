@@ -15,46 +15,39 @@ int main(){
     vector<string> C(Hc);
     for(auto &v : C) cin >> v;
 
-    auto domain = [&](int x, int y) {return (0 <= x && x < Wc && 0 <= y && y < Hc);};
-
-    for(int aX = -15; aX <= 15; aX++){
-        for(int aY = -15; aY <= 15; aY++){
+    for(int aX = 0; aX <= 20; aX++){
+        for(int aY = 0; aY <= 20; aY++){
             // Aの開始位置(左上)を決める
             
-            for(int bX = -15; bX <= 15; bX++){
-                for(int bY = -15; bY <= 15; bY++){
-                    bool ans = true;
+            for(int bX = 0; bX <= 20; bX++){
+                for(int bY = 0; bY <= 20; bY++){
                     // Bの開始位置(左上)を決める
                     
-                    vector<vector<char>> D(Hc, vector<char>(Wc, '.'));
+                    vector<vector<char>> D(50, vector<char>(50, '.'));
                     for(int i = 0; i < Ha; i++){
                         for(int j = 0; j < Wa; j++){
-                            if(domain(aX+j,aY+i)){
-                                D.at(aY+i).at(aX+j) = A[i][j];
-                            
-                            }else if(A[i][j] == '#'){
-                                //黒のマスが外にあるのでダメ
-                                ans = false;
-                            }
+                            D.at(aY+i).at(aX+j) = A.at(i).at(j);
                         }
                     }
                     for(int i = 0; i < Hb; i++){
                         for(int j = 0; j < Wb; j++){
-                            if(domain(bX+j,bY+i)){
-                                D.at(bY+i).at(bX+j) = B[i][j];
-                            
-                            }else if(B[i][j] == '#'){
-                                ans = false;
-                            }
+                            //if文を付けないとAのシートを上書きしてしまうことに注意
+                            if(B[i][j] == '#') D.at(bY+i).at(bX+j) = B.at(i).at(j);
                         }
                     }
 
                     //走査
-                    for(int i = 0; i < Hc; i++){
-                        for(int j = 0; j < Wc; j++){
-                            if(D[i][j] != C[i][j]){
-                                ans = false;
+                    bool ans = true;
+                    for(int i = 0; i < 50; i++){
+                        for(int j = 0; j < 50; j++){
+                            if( (10 <= i && i < 10+Hc) && (10 <= j && j < 10+Wc) ){
+                                if(D.at(i).at(j) != C.at(i-10).at(j-10)){
+                                    ans = false;
+                                }
+                            }else{
+                                if(D.at(i).at(j) == '#') ans = false;
                             }
+                            
                         }
                     }
 
