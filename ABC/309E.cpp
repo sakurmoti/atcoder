@@ -6,27 +6,28 @@ int main(){
     int N,M;
     cin >> N >> M;
 
-    vector<vector<int>> child(N+1);
+    vector<int> p(N+1,0);
     for(int i = 2; i <= N; i++){
-        int p; cin >> p;
-        child[p].push_back(i);
+        cin >> p[i];
     }
 
-    vector<vector<int>> sum(N+1);
-    for(int i = 1; i <= N; i++){
-        sum[i] = child[i].size();
-    }
-
-    vector<int> ins(N+1, -1);
+    vector<int> dp(N+1, -1);
     for(int i = 0; i < M; i++){
         int x,y; cin >> x >> y;
-        ins[x] = max(ins[x],y); //最大値の保険だけ見ればよい
+        //最大値の保険だけ見ればよい
+        dp[x] = max(dp[x], y);
     }
 
+    int cnt=0;
     for(int i = 1; i <= N; i++){
-        if(ins[x] > 0){
-            add.insert(x); //x自身も保険に加入
-        }
+        //本人の保険か、親からの引継ぎか長い方
+        //1の親は0としている
+        dp[i] = max(dp[i], dp[p[i]]-1);
+        if(dp[i] >= 0) cnt++;
     }
+
+    // for(auto &v : dp) cout << v << ' ';
+    cout << cnt << endl;
+    
     return 0;
 }
