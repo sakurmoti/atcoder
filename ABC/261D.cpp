@@ -16,9 +16,7 @@ int main(){
 
     // dp[i][j]をi番目まで見たときで、カウンタがjのときの最大値
     vector<vector<ll>> dp(N+1, vector<ll>(N+1,-1e10));
-    for(int i = 0; i <= N; i++){
-        dp[i][0] = 0;
-    }
+    for(int i = 0; i <= N; i++) dp[i][0] = 0;
     for(int i = 1; i <= N; i++){
         ll next = -1;
         for(int j = 1; j <= N; j++){
