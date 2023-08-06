@@ -7,7 +7,6 @@ int main(){
     cin >> N >> K;
 
     //Kが奇数 -> XORっぽい？
-    //要するに、A[x1] xor A[x2] xor A[x3] ...が聞ける
 
     /*
     一般にK = kのとき
