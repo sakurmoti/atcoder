@@ -2,6 +2,7 @@
 using namespace std;
 using ll = long long;
 
+//imos法による解答 O(N+max(T))
 int main(){
     int N,W;
     cin >> N >> W;
