@@ -2,35 +2,34 @@
 using namespace std;
 using ll = long long;
 
+
 int main(){
     int N; cin >> N;
     string S; cin >> S;
 
     sort(S.begin(), S.end());
 
-    set<ll> ans;
-    do{
-        // for(auto &_v : S) cout << _v << ' ';
-        // cout << endl;
+    ll dig = 1;
+    for(int i = 0; i < N; i++){
+        dig *= 10;
+    }
 
-        ll num = 0;
-        ll dig = 1;
-        for(int i = N-1; i >= 0; i--){
-            num += dig*(S[i]-'0');
-            dig *= 10;
+    ll ans = 0;
+    for(ll i = 0; i*i < dig; i++){
+        string A;
+        A.assign(N, '0');
+        
+        string B = to_string(i*i);
+        int b = B.size();
+        for(int j = 0; j < b; j++){
+            A[j] = B[j];
         }
 
-        ll sq = sqrt(num);
-        for(int i = -10; i <= 10; i++){
-            ll x = sq+i;
-            if(x*x == num){
-                cout << num << endl;
-                ans.insert(num);
-            }
+        sort(A.begin(), A.end());
+        if(A == S){
+            ans++;
         }
-
-    }while(next_permutation(S.begin(), S.end()));
-
-    cout << ans.size() << endl;
+    }
+    cout << ans << endl;
     return 0;
 }
