@@ -1,50 +1,39 @@
 #include <bits/stdc++.h>
 using namespace std;
+using ll = long long;
+#define ALL(x) (x).begin(), (x).end()
+#define RALL(x) (x).rbegin(), (x).rend()
 
-bool color[1010][1010];
-bool seen[1010][1010];
-int count;
-
-int vec_dx[6] = {-1,-1,0,0,1,1};
-int vec_dy[6] = {-1,0,-1,1,0,1};
-
-void dfs(int x, int y){
-    /*seenは訪問済みか確認するためのもの*/
-    seen.at(y).at(x) = true; //訪問する
-
-    //6方向を探索
-    for(int i = 0; i < 6; i++){
-        int dx = x + vec_dx.at(i);
-        int dy = y + vec_dy.at(i);
-
-        //場外なら無視
-        if (dx < 0 || dx >= 1001 || dy < 0 || dy >= 1001) continue;
-
-        // 移動先が探索済みの場合
-        if(seen[dy][dx]){
-            count--;
-            continue;
-        }
-
-        // 再帰的に探索
-        dfs(dx, dy);
-    }
-    
-}
+#include <atcoder/all>
+using namespace atcoder;
 
 int main(){
-    int N;
-    cin >> N;
-    vector<int> X(N),Y(N);
+    int N; cin >> N;
+    vector<pair<int, int>> p(N);
     for(int i = 0; i < N; i++){
-        cin >> X[i] >> Y[i];
-        color[Y[i]][X[i]] = true;
+        cin >> p[i].first >> p[i].second;
     }
 
-    count = N;
-
+    dsu d(N);
+    vector<pair<int, int>> dxy = { {-1,-1}, {-1,0}, {0,-1}, {0,1}, {1,0}, {1,1} };
     for(int i = 0; i < N; i++){
-        dfs(X[i],Y[i]);
+        for(int j = i+1; j < N; j++){
+            for(int k = 0; k < 6; k++){
+                if(p[i].first + dxy[k].first == p[j].first && p[i].second + dxy[k].second == p[j].second){
+                    d.merge(i,j);
+                }
+            }
+        }
     }
+
+    // vector<vector<int>> g = d.groups();
+    // for(int i = 0; i < g.size(); i++){
+    //     for(int j = 0; j < g[i].size(); j++){
+    //         cout << g[i][j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+
+    cout << d.groups().size() << endl;
     return 0;
 }
