@@ -7,20 +7,31 @@ using ll = long long;
 int main(){
     int N,Q; cin >> N >> Q;
 
-    vector<bitset<200010>> Box(N+1);
-    for(int i = 1; i <= N; i++){
+    vector<set<int>> box(N);
+    for(int i = 0; i < N; i++){
         int c; cin >> c;
-        Box[i].reset();
-        Box[i].set(c); 
+        box[i].insert(c);
     }
 
     for(int q = 0; q < Q; q++){
         int a,b; cin >> a >> b;
+        a--;
+        b--;
 
-        Box[b] |= Box[a];
-        Box[a].reset();
-        cout << Box[b].count() << endl;
+        if(box[a].size() <= box[b].size()){
+            // box[a]を全てbox[b]に移す
+            box[b].merge(box[a]);
+            box[a].clear();
+
+        }else{
+            // box[b]を全てbox[a]に移した後、box[a]とbox[b]を入れ替える
+            box[a].merge(box[b]);
+            box[b].clear();
+
+            swap(box[a], box[b]);
+        }
+
+        cout << box[b].size() << endl;
     }
-
     return 0;
 }
