@@ -1,63 +1,56 @@
 #include <bits/stdc++.h>
 using namespace std;
+using ll = long long;
+#define ALL(x) (x).begin(), (x).end()
+#define RALL(x) (x).rbegin(), (x).rend()
 
 int main(){
-    int N,M;
-    cin >> N >> M;
+    ll N,M; cin >> N >> M;
+    vector<ll> A(N);
+    for(auto &_v : A) cin >> _v;
 
-    int a;
-    map<int,int> f;
-    long long sumA = 0;
-    for(int i = 0; i < N; i++){
-        cin >> a;
-        sumA += a;
-        f[a]++;
+    // 整数iが手札にあるときにi+1を出さない方が良い
+    // すると全探索すべきは最初の一枚目のみ
+    ll sum = 0;
+    map<ll, ll> card;
+    for(ll i = 0; i < N; i++){
+        sum += A[i];
+        card[A[i]]++;
     }
 
-    /*0 <= Ai < Mから(X+1) modMとなるカードは0のみ(X=M-1のとき)
-    Ai = M-1が存在すれば、0につなげることができる
-    Ai=Ajなる数字があるならどうせ全て消したほうが良いので重複は除いてよい
-    そこで整数nのカードがy枚あることを指す辞書y = f(n)を作る
-    ソートして連番が途切れたところまではつなげられる
-    逆に途切れた後の数字からスタートする以外は無駄なのでやらなくてよい*/
-
-    long long maximum=0;
-    long long sum = 0;
-    long long sum0=-1;
-    for(auto itr = f.begin(); itr != f.end(); itr++){
-        //printf("map[%d] = %d\n",itr->first, itr->second);
-        //printf("next itr : map[%d] = %d\n", next(itr)->first, next(itr)->second);
-
-        if(sum == 0){
-            sum += (itr->first)*(itr->second);
-        }
-
-        if(itr != prev(f.end())){
-            //mapのイテレータはpair<const key, value>で入っている
-            if( (itr->first)+1 == (next(itr)->first)){
-                sum += (next(itr)->first)*(next(itr)->second);
-
-            }else{
-                maximum = max(maximum, sum);
-                if(sum0 == -1) sum0 = sum;
-
-                sum = 0;
-            }
-
-        }else{
-            //最後のイテレータになったら0とつなげられるか確認
-            //この時、最初から最後までずっと続いていたら加算してはいけないことに注意
-            if(f.begin()->first == 0 && sum0 != -1 && f.end()->first == M-1){
-                sum += sum0;
-            }
-
-            maximum = max(maximum, sum);
-
-        }
-        
-        //printf("sum = %d\n\n",sum);
+    vector<pair<ll, ll>> B;
+    for(auto v : card) B.push_back(v);
+    
+    // 一周できる場合は無限ループを防ぐため例外処理
+    ll K = B.size();
+    if(K == M){
+        cout << 0 << endl;
+        return 0;
     }
 
-    cout << sumA-maximum << endl;
+    // lは区切れの先頭
+    ll l = 0;
+    for(ll i = 0; i < K; i++){
+        if(B[(i+1)%K].first != (B[i].first+1)%M ){
+            l = i;
+            break;
+        }
+    }
+
+    vector<ll> ans(K, -1);
+    for(ll i = 0; i < K; i++){
+        ll idx = (l-i+K)%K;
+        ans[idx] = sum;
+
+        if(B[(idx+1)%K].first == (B[idx].first + 1)%M ){
+            // 続いているので
+            ans[idx] = ans[(idx+1)%K];
+        }
+
+        // 手札idxを全て出す
+        ans[idx] -= B[idx].first * B[idx].second;
+    }
+
+    cout << *min_element(ALL(ans)) << endl;
     return 0;
 }
