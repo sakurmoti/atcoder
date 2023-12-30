@@ -1,8 +1,14 @@
+# 実行ファイル
+*.exe
+
+# 余計なやつ
 .vscode/
 include/
-
-*.exe
 
 test.cpp
 temp.cpp
 sample.cpp
+
+# AHC
+input/
+output/
