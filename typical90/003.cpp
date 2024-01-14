@@ -29,19 +29,18 @@ int main(){
         queue<int> que;
         que.push(v);
         vector<int> L(N, 1e9);
-        vector<bool> visited(N, false);
         L[v] = 0;
         while(!que.empty()){
             int now = que.front();
             que.pop();
+            // printf("\tnow=%d\n", now);
 
-            if(visited[now]) continue;
-            visited[now] = true;
-
-            for(int i = 0; i < G[v].size(); i++){
-                int next = G[v][i];
+            for(int i = 0; i < G[now].size(); i++){
+                int next = G[now][i];
+                // printf("next=%d\n", next);
+                
+                if(L[next] > L[now] + 1) que.push(next);
                 L[next] = min(L[next], L[now] + 1);
-                que.push(next);
             }
         }
 
@@ -53,9 +52,9 @@ int main(){
 
     // 頂点0から最も遠い頂点を探す
     L = bfs(0);
-    for(int _i = 0; _i < L.size(); _i++){
-        cout << L[_i] << " \n"[_i == L.size()-1];
-    }
+    // for(int _i = 0; _i < L.size(); _i++){
+    //     cout << L[_i] << " \n"[_i == L.size()-1];
+    // }
 
     for(int i = 0; i < N; i++){
         if(M < L[i]){
@@ -63,8 +62,6 @@ int main(){
             M = L[i];
         }
     }
-
-    fprintf(stderr, "u = %d\n", u);
     
     // 頂点uから最も遠い頂点を探し、その距離を計算
     L = bfs(u);
