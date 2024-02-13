@@ -4,6 +4,12 @@ using ll = long long;
 #define ALL(x) (x).begin(), (x).end()
 #define RALL(x) (x).rbegin(), (x).rend()
 
+double avg_score = 0.0;
+
+void color(int y, int x, string color){
+    cout << "#c " << y << " " << x << " " << color << endl;
+}
+
 struct Tester {
     vector<int> Di;
     vector<int> Dj;
@@ -130,7 +136,7 @@ struct Judge {
             else cout << " ";
         }
 
-        int ret; cin >> ret;        
+        int ret; cin >> ret;
         cout << "# cost: " << cost << endl;
         cout << "# absolute score: " << round(1e6 * cost) << endl;
         if(ret == 1){
@@ -162,6 +168,8 @@ struct Solver {
 
     void solve(){
         all_dig();
+        grid_dig();
+        judge.answer(ans);
     }
 
     // 解法1
@@ -176,31 +184,104 @@ struct Solver {
                 }
             }
         }
-
-        judge.answer(ans);
     }
 
     // 解法2
     void grid_dig(){
         for(int i = 0; i < N; i++){
             for(int j = 0; j < N; j++){
-                if(i%2 == 1 || j%2==1){
+                if( (Island[i][j] < 0) && ( (i%2 == 0 && j%2==1) || (i%2==1 && j%2==0) ) ){
                     Island[i][j] = judge.dig(i,j);
 
                     if(Island[i][j] > 0){
                         ans.push_back(i);
                         ans.push_back(j);
+                        color(i, j, "#00ff00");
+                        
+
+                        auto isRange = [](int x, int L, int R){ return L <= x && x < R; };
+                        if( isRange(j-1, 0, N) && Island[i][j-1] < 0 ){
+                            Island[i][j-1] = judge.dig(i, j-1);
+                            if(Island[i][j-1] > 0){
+                                ans.push_back(i);
+                                ans.push_back(j-1);
+                                color(i, j-1, "#99ff99");
+                            }
+                        }
+
+                        if( isRange(j+1, 0, N) && Island[i][j+1] < 0 ){
+                            Island[i][j+1] = judge.dig(i, j+1);
+                            if(Island[i][j+1] > 0){
+                                ans.push_back(i);
+                                ans.push_back(j+1);
+                                color(i, j+1, "#99ff99");
+                            }
+                        }
+
+                        if( isRange(i-1, 0, N) && Island[i-1][j] < 0 ){
+                            Island[i-1][j] = judge.dig(i-1, j);
+                            if(Island[i-1][j] > 0){
+                                ans.push_back(i-1);
+                                ans.push_back(j);
+                                color(i-1, j, "#99ff99");
+                            }
+                        }
+
+                        if( isRange(i+1, 0, N) && Island[i+1][j] < 0 ){
+                            Island[i+1][j] = judge.dig(i+1, j);
+                            if(Island[i+1][j] > 0){
+                                ans.push_back(i+1);
+                                ans.push_back(j);
+                                color(i+1, j, "#99ff99");
+                            }
+                        }
                     }
                 }
             }
         }
+    }
 
-        
+    // 解法3
+    void division_dig(){
+        function<void(int, int, int, int)> divide = [&](int sy, int sx, int ty, int tx) -> void {
+            if(sy == ty || sx == tx) return;
 
+            vector<int> p;
+            for(int i = sy; i < ty; i++){
+                for(int j = sx; j < tx; j++){
+                    p.push_back(i);
+                    p.push_back(j);
+                }
+            }
+
+            if(p.size()/2 == 1){
+                int y = p[0];
+                int x = p[1];
+                Island[y][x] = judge.dig(y, x);
+                if(Island[y][x] > 0){
+                    ans.push_back(y);
+                    ans.push_back(x);
+                }
+                return;
+            }
+
+            int fortune = judge.fortune(p);
+            if(fortune == 0) return;
+            
+            int my = (sy + ty) / 2;
+            int mx = (sx + tx) / 2;
+
+            divide(sy, sx, my, mx);
+            divide(sy, mx, my, tx);
+            divide(my, sx, ty, mx);
+            divide(my, mx, ty, tx);
+        };
+
+        divide(0, 0, N, N);
     }
 };
 
-void solve(string seed = "0000"){
+void solve(string seed=""){
     #ifdef __LOCAL__
         ifstream ifs("input/" + seed  + ".txt");
         cin.rdbuf(ifs.rdbuf());
@@ -253,8 +334,11 @@ void solve(string seed = "0000"){
 
     #ifdef __LOCAL__
         auto end = chrono::system_clock::now();
-        auto msec = chrono::duration_cast<chrono::milliseconds>(end - start).count();
-        cerr << "seed = " << seed << ", time = " << msec << " msec" << endl;
+        auto elapsed = chrono::duration_cast<chrono::milliseconds>(end - start).count();
+        cerr << "seed = " << seed << ", ";
+        cerr << "elapsed = " << elapsed << "ms" << ", ";
+        cerr << "cost = " << solver.judge.cost << ", ";
+        cerr << endl;
     #endif
 }
 
