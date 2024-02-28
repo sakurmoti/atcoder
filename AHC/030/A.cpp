@@ -4,7 +4,7 @@ using ll = long long;
 #define ALL(x) (x).begin(), (x).end()
 #define RALL(x) (x).rbegin(), (x).rend()
 
-double avg_score = 0.0;
+double sum_cost = 0.0;
 
 void color(int y, int x, string color){
     cout << "#c " << y << " " << x << " " << color << endl;
@@ -80,18 +80,24 @@ struct Tester {
 };
 
 struct Judge {
+    int Limit;
     double cost = 0.0;
     Tester tester;
 
     Judge(){}
 
-    void setTester(Tester t){
-        tester = t;
-    }
+    void setTester(Tester t){tester = t;}
+    void setLimit(int l){Limit = l;}
 
     int dig(int y, int x) {
+        if(Limit <= 0){
+            cost += 1e5;
+            return -1;
+        }
+        Limit--;
         cost += 1.0;
         cout << "q 1 " << y << " " << x << endl;
+        color(y, x, "#00ff00");
 
         int ret;
 
@@ -105,6 +111,11 @@ struct Judge {
     }
 
     int fortune(vector<int> point){
+        if(Limit <= 0){
+            cost += 1e5;
+            return -1;
+        }
+        Limit--;
         int k = point.size() / 2;
         cost += 1.0 / sqrt(k);
 
@@ -127,7 +138,12 @@ struct Judge {
         return ret;
     }
 
-    bool answer(vector<int> ans){
+    int answer(vector<int> ans){
+        if(Limit <= 0){
+            cost += 1e5;
+            return -1; // limit exceeded
+        }
+        Limit--;
         int d = ans.size() /2;
         cout << "a " << d << " ";
         for(int i = 0; i < d; i++){
@@ -136,14 +152,22 @@ struct Judge {
             else cout << " ";
         }
 
-        int ret; cin >> ret;
+        bool ret;
+        
+        #ifdef __LOCAL__
+            ret = tester.answer(ans);
+        #else
+            cin >> ret;
+        #endif
+
         cout << "# cost: " << cost << endl;
         cout << "# absolute score: " << round(1e6 * cost) << endl;
-        if(ret == 1){
-            return true;
+        if(ret){
+            sum_cost += cost;
+            return 1; // ac
         }else{
             cost += 1.0;
-            return false;
+            return 0; // wa
         }
     }
 
@@ -157,19 +181,23 @@ struct Solver {
     vector<vector<int>> Island;
     Judge judge;
 
-    int Limit;
     vector<int> ans;
 
     Solver(int n, int m, double eps, vector<vector<int>> shape)
     : N(n), M(m), EPS(eps), Shape(shape) {
-        Limit = 2*N*N;
         Island.resize(N, vector<int>(N,-1));
+        judge.setLimit(2*N*N);
     }
 
-    void solve(){
-        all_dig();
-        grid_dig();
-        judge.answer(ans);
+    int solve(){
+        // all_dig();
+        // grid_dig();
+        dfs_dig();
+        // division_dig();
+        // division_dig2();
+        int res = judge.answer(ans);
+
+        return res;
     }
 
     // 解法1
@@ -186,26 +214,36 @@ struct Solver {
         }
     }
 
-    // 解法2
+    // 解法2-1
     void grid_dig(){
+        int oil = 0;
+        int sum = 0;
+        for(auto &v : Shape) oil += v.size()/2;
+        cout << "# oil : " << oil << endl;
+
+        auto isRange = [](int x, int L, int R){ return L <= x && x < R; };
+
         for(int i = 0; i < N; i++){
             for(int j = 0; j < N; j++){
                 if( (Island[i][j] < 0) && ( (i%2 == 0 && j%2==1) || (i%2==1 && j%2==0) ) ){
                     Island[i][j] = judge.dig(i,j);
+                    
 
                     if(Island[i][j] > 0){
                         ans.push_back(i);
                         ans.push_back(j);
                         color(i, j, "#00ff00");
-                        
+                        sum += Island[i][j];
+                        if(sum == oil) return;
 
-                        auto isRange = [](int x, int L, int R){ return L <= x && x < R; };
                         if( isRange(j-1, 0, N) && Island[i][j-1] < 0 ){
                             Island[i][j-1] = judge.dig(i, j-1);
                             if(Island[i][j-1] > 0){
                                 ans.push_back(i);
                                 ans.push_back(j-1);
                                 color(i, j-1, "#99ff99");
+                                sum += Island[i][j-1];
+                                if(sum == oil) return;
                             }
                         }
 
@@ -215,6 +253,8 @@ struct Solver {
                                 ans.push_back(i);
                                 ans.push_back(j+1);
                                 color(i, j+1, "#99ff99");
+                                sum += Island[i][j+1];
+                                if(sum == oil) return;
                             }
                         }
 
@@ -224,6 +264,8 @@ struct Solver {
                                 ans.push_back(i-1);
                                 ans.push_back(j);
                                 color(i-1, j, "#99ff99");
+                                sum += Island[i-1][j];
+                                if(sum == oil) return;
                             }
                         }
 
@@ -233,16 +275,85 @@ struct Solver {
                                 ans.push_back(i+1);
                                 ans.push_back(j);
                                 color(i+1, j, "#99ff99");
+                                sum += Island[i+1][j];
+                                if(sum == oil) return;
                             }
                         }
+                    }else{
+                        color(i, j, "#ff0000");
+                    
                     }
                 }
             }
         }
     }
 
-    // 解法3
+    // 解法2-2
+    void dfs_dig(){
+        // grid_digのように掘っていき、1以上が見つかったらdfsで隣接を掘る
+        // oilと等しくなったらreturn
+        int oil = 0;
+        int sum = 0;
+        for(auto &v : Shape) oil += v.size()/2;
+
+        auto isRange = [](int x, int L, int R){ return L <= x && x < R; };
+
+        int dx[4] = {0, 1, 0, -1};
+        int dy[4] = {1, 0, -1, 0};
+        auto bfs = [&](int s, int t) -> void {
+            queue<pair<int, int>> que;
+            que.push({s,t});
+
+            int x,y;
+            while(!que.empty()){
+                if(sum == oil) return;
+
+                auto [y, x] = que.front();
+                que.pop();
+                if(Island[y][x] >= 0) continue;
+                Island[y][x] = judge.dig(y,x);
+                sum += Island[y][x];
+
+                if(Island[y][x] > 0){
+                    ans.push_back(y);
+                    ans.push_back(x);
+                    for(int i = 0; i < 4; i++){
+                        int nx = x + dx[i];
+                        int ny = y + dy[i];
+
+                        if(isRange(nx, 0, N) && isRange(ny, 0, N)) que.push({ny, nx});
+                    }
+                }
+            }
+        };
+
+        // for(int i = 0; i < N; i++){
+        //     for(int j = 0; j < N; j++){
+        //         if( (Island[i][j] < 0) && ( (i%2 == 0 && j%2==1) || (i%2==1 && j%2==0) ) ){
+        //             bfs(i, j);
+        //         }
+        //     }
+        // }
+
+        // ランダムで掘ってみる
+        // こっちのほうがよさそう
+        uniform_int_distribution<int> unif(0, N-1);
+        while(sum < oil){
+            random_device seed;
+            mt19937 mt(seed());
+            int randY = unif(mt);
+            int randX = unif(mt);
+            bfs(randY, randX);
+        }
+
+    }
+
+    // 解法3-1
     void division_dig(){
+        auto g = [](int x) -> int {
+            return x/2;
+        };
+
         function<void(int, int, int, int)> divide = [&](int sy, int sx, int ty, int tx) -> void {
             if(sy == ty || sx == tx) return;
 
@@ -254,6 +365,7 @@ struct Solver {
                 }
             }
 
+            // 1マスの場合は掘って情報を確定させる
             if(p.size()/2 == 1){
                 int y = p[0];
                 int x = p[1];
@@ -265,8 +377,20 @@ struct Solver {
                 return;
             }
 
-            int fortune = judge.fortune(p);
-            if(fortune == 0) return;
+            // 2マス以上は占い、0が多いと思われる場合はスルー
+            // ただし、占う範囲が広いほど精度は悪いので繰り返し占う必要がある
+            vector<int> f;
+            for(int i = 0; i < g((ty-sy) * (tx-sx)); i++){
+                f.push_back(judge.fortune(p));
+            }
+            
+            int zero = 0;
+            int other = 0;
+            for(int i = 0; i < f.size(); i++){
+                if(f[i] == 0) zero++;
+                else other++;
+            }
+            if(zero > other) return;
             
             int my = (sy + ty) / 2;
             int mx = (sx + tx) / 2;
@@ -277,7 +401,59 @@ struct Solver {
             divide(my, mx, ty, tx);
         };
 
-        divide(0, 0, N, N);
+        divide(0, 0, N/2, N/2);
+        divide(0, N/2, N/2, N);
+        divide(N/2, 0, N, N/2);
+        divide(N/2, N/2, N, N);
+    }
+
+    // 解法3-2
+    void division_dig2(){
+        int stlide = 1;
+        int window_H = 2;
+        int window_W = 2;
+
+        for(int i = 0; i < N; i += stlide){
+            for(int j = 0; j < N; j += stlide){
+                int sy = i;
+                int sx = j;
+                int ty = min(i + window_H, N);
+                int tx = min(j + window_W, N);
+
+                vector<int> p;
+                for(int y = sy; y < ty; y++){
+                    for(int x = sx; x < tx; x++){
+                        p.push_back(y);
+                        p.push_back(x);
+                    }
+                }
+
+                vector<int> f;
+                for(int k = 0; k < 3; k++){
+                    f.push_back(judge.fortune(p));
+                }
+
+                int zero = 0;
+                int other = 0;
+                for(int k = 0; k < f.size(); k++){
+                    if(f[k] == 0) zero++;
+                    else other++;
+                }
+
+                if(zero > other) continue;
+
+                for(int y = sy; y < ty; y++){
+                    for(int x = sx; x < tx; x++){
+                        Island[y][x] = judge.dig(y, x);
+                        if(Island[y][x] > 0){
+                            ans.push_back(y);
+                            ans.push_back(x);
+                        }
+                    }
+                }
+            }
+        }
+
     }
 };
 
@@ -330,14 +506,16 @@ void solve(string seed=""){
         solver.judge.setTester(tester);
     #endif
     
-    solver.solve();
+    int res = solver.solve();
 
     #ifdef __LOCAL__
         auto end = chrono::system_clock::now();
         auto elapsed = chrono::duration_cast<chrono::milliseconds>(end - start).count();
-        cerr << "seed = " << seed << ", ";
-        cerr << "elapsed = " << elapsed << "ms" << ", ";
-        cerr << "cost = " << solver.judge.cost << ", ";
+        cerr << "seed : " << seed << ", ";
+        cerr << "elapsed : " << elapsed << " ms" << ", ";
+        cerr << "cost : " << solver.judge.cost << ", ";
+        cerr << (res>0 ? "" : (res == 0 ? " <WA> " : " <TLE> ") );
+        cerr << "\t\t sum_cost : " << sum_cost;
         cerr << endl;
     #endif
 }
@@ -349,8 +527,12 @@ int main(){
             ss << setw(4) << setfill('0') << i;
             solve(ss.str());
         }
+
+        cout.rdbuf(nullptr);
+        cerr << fixed << setprecision(5) << "avg_cost : " << sum_cost / 100 << endl;
     #else
         solve();
     #endif
+
     return 0;
 }
