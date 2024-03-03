@@ -28,10 +28,10 @@ int main(){
     for(int i = 0; i < M; i++){
         int x; cin >> x;
         ll ball = seg.get(x);
-        int k = ball/N; // 全てに対してk個追加
-        int t = ball%N; // 箱x+1からx+tまで1個ずつ追加
+        int k = ball/N;
+        int t = ball%N;
 
-        seg.set(x, 0); // 箱B[i]の中のボールを全て取り出す
+        seg.set(x, 0);
 
         seg.apply(0, N, k);
         if(x + t+1 <= N){
