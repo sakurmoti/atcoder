@@ -6,32 +6,40 @@ using ll = long long;
 
 int main(){
     int N; cin >> N;
-    vector<int> A(N),B(N);
+    vector<pair<int, int>> C(2*N);
     for(int i = 0; i < N; i++){
-        cin >> A[i] >> B[i];
-        A[i]--;
-        B[i]--;
+        int a,b; cin >> a >> b;
+
+        a--; b--;
+        if(a > b) swap(a, b); // aが先に来るように調整
+
+        C[a] = {-1, i}; // 頂点aは括弧列の左(-1) と 弧i である情報を持たせる
+        C[b] = {1, i};
+    }
+
+    // 円を切り開いて線分で考える
+    // すると括弧が正しく閉じているかに対応
+    stack<int> stk;
+    for(int i = 0; i < 2*N; i++){
+        auto [t, v] = C[i];
+        
+        if(t < 0){
+            stk.push(v);
+
+        }else{
+            int u = stk.top();
+            stk.pop();
+
+            if(u != v){
+                // 括弧の終わりが異なる = 弧が異なる = 交点あり
+                cout <<  "Yes" << endl;
+                return 0;
+            }
+
+        }
+
     }
     
-    bool isParallel = false;
-    set<int> s1;
-    for(int i = 0; i < N; i++){
-        s1.insert(A[i] + B[i]);
-    }
-    if(s1.size() == 1) isParallel = true;
-
-    set<int> s2;
-    for(int i = 0; i < N; i++){
-        if(A[i] == 0) A[i] = 2*N;
-        if(B[i] == 0) B[i] = 2*N;
-    }
-    for(int i = 0; i < N; i++){
-        s2.insert(A[i] + B[i]);
-    }
-    if(s2.size() == 1) isParallel = true;
-
-
-    if(isParallel) cout << "No" << endl;
-    else cout << "Yes" << endl;
+    cout << "No" << endl;
     return 0;
 }
