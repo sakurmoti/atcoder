@@ -1,26 +1,54 @@
 #include <bits/stdc++.h>
 using namespace std;
+using ll = long long;
+#define ALL(x) (x).begin(), (x).end()
+#define RALL(x) (x).rbegin(), (x).rend()
 
 int main(){
-    long long N,P,Q,R;
-    cin >> N >> P >> Q >> R;
-
-    vector<int> A(N);
-    for(int i = 0; i < N; i++) cin >> A.at(i);
-
-    //累積和を先に求める。sum[0]=0, sum[i]はA[0]~A[i-1]の総和とする
-    //高校数学のSn+1 - Sn = an+1を利用するイメージ
-    vector<long long> sum(N+1);
-    sum[0] = 0;
+    ll N,P,Q,R; cin >> N >> P >> Q >> R;
+    vector<ll> A(N+1);
     for(int i = 1; i <= N; i++){
-        sum[i] += sum[i-1] + A[i-1];
+        cin >> A[i];
     }
 
-    /*これにより、Sy-Sx=P, Sz-Sy=Q, Sw-Sz=Rを満たすx,y,z,wを見つければよくなった
-    A>0より累積和は単調増加のため、Sy-Sx=Pを満たすyは Sy = Sx + Pをyについて二分探索すればよい
-    同様にz,wを求めるが、xは全探索で決める。するとO(NlogN)で求めることができる*/
-    
+    vector<ll> csum(N+1, 0);
+    for(int i = 1; i <= N; i++){
+        csum[i] = csum[i-1] + A[i];
+    }
 
+    auto binary_search = [&](int ok, int ng, ll comp) {
+        int L = ng;
+        while(abs(ok - ng) >= 2){
+            int mid = (ok + ng)/2;
+            if(csum[mid] - csum[L] >= comp){
+                ok = mid;
+            }else{
+                ng = mid;
+            }
+        }
 
+        return ok;    
+    };
+
+    for(int x = 0; x <= N-3; x++){
+        fprintf(stderr, "\nx=%d ", x);
+
+        int y = binary_search(N-2, x, P);
+        if(csum[y] - csum[x] != P) continue;
+        fprintf(stderr, "y=%d ", y);
+
+        int z = binary_search(N-1, y, Q);
+        if(csum[z] - csum[y] != Q) continue;
+        fprintf(stderr, "z=%d ", z);
+
+        int w = binary_search(N, z, R);
+        if(csum[w] - csum[z] != R) continue;
+        fprintf(stderr, "w=%d ", w);
+
+        cout << "Yes" << endl;
+        return 0;
+    }
+
+    cout << "No" << endl;
     return 0;
 }
