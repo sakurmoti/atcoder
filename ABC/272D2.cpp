@@ -11,37 +11,41 @@ int main(){
     int N,M;
     cin >> N >> M;
 
-    vector<vector<int>> dp(N+1, vector<int>(N+1, 1e9));
-    dp[1][1] = 0;
+    // (k-i)^2 + (l-j)^2 = Mである必要がある
+    // x = (k-i), y = (l-j)とおく
+    vector<pair<int, int>> dxy;
+    for(int x = 0; x*x <= M; x++){
+        int y = (int)sqrt(M - x*x);
+        if(x*x + y*y == M){
+            dxy.push_back(make_pair(x,y));
+            dxy.push_back(make_pair(x,-y));
+            dxy.push_back(make_pair(-x,y));
+            dxy.push_back(make_pair(-x,-y));
+        }
+    }
 
-    queue<pair<int, int>> que;
-    que.push(make_pair(1,1));
-    vector<vector<bool>> visited(N+1, vector<bool>(N+1, false));
-    
+    queue<tuple<int, int, int>> que;
+    que.push(make_tuple(0,0,0));
+    vector<vector<int>> ans(N, vector<int>(N, -1));
+
     while(!que.empty()){
-        auto [k,l] = que.front();
+        auto[y,x,d] = que.front();
         que.pop();
 
-        for(int i = 1; i <= N; i++){
-            for(int j = 1; j <= N; j++){
-                if(visited[i][j]) continue;
+        if(ans[y][x] >= 0) continue;
+        ans[y][x] = d;
 
-                if((i-k)*(i-k) + (j-l)*(j-l) == M){
-                    que.push(make_pair(i,j));
-                    dp[i][j] = dp[k][l] + 1;
-                }
+        for(auto [dx,dy] : dxy){
+            int k = x + dx;
+            int l = y + dy;
+
+            // printf("(%d, %d) -> (%d, %d)\n",x,y,k,l);
+            if(isRange(k,0,N) && isRange(l,0,N) && ans[l][k] < 0){
+                que.push(make_tuple(l,k,d+1));
             }
         }
-
-        visited[k][l] = true;
     }
 
-    for(int i = 1; i <= N; i++){
-        for(int j = 1; j <= N; j++){
-            if(visited[i][j]) cout << dp[i][j] << " ";
-            else cout << -1 << " ";
-        }
-        cout << endl;
-    }
+    for(auto &_v : ans){ for(auto &_vv : _v) cout << _vv << " "; cout << endl; }
     return 0;
 }
