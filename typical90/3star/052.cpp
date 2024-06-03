@@ -7,36 +7,24 @@ template<class T> inline bool isRange(const T &x, const T &l, const T &r){ retur
 template<class T> inline bool chmin(T &a, const T &b){ if(a > b){ a = b; return true; } return false; }
 template<class T> inline bool chmax(T &a, const T &b){ if(a < b){ a = b; return true; } return false; }
 
+#include <atcoder/all>
+using namespace atcoder;
+using mint = modint1000000007;
+
 int main(){
     int N; cin >> N;
-    vector<ll> S(50,0),T(50,0),U(50,0);
-    
-    for(int i = 0; i < N; i++){
-        int a; cin >> a;
-        S[a%46]++;
-    }
 
+    mint ans(1);
     for(int i = 0; i < N; i++){
-        int b; cin >> b;
-        T[b%46]++;
-    }
-
-    for(int i = 0; i < N; i++){
-        int c; cin >> c;
-        U[c%46]++;
-    }
-
-    ll ans = 0;
-    for(int i = 0; i < 50; i++){
-        for(int j = 0; j < 50; j++){
-            for(int k = 0; k < 50; k++){
-                if((i+j+k) % 46 == 0){
-                    ans += S[i]*T[j]*U[k];
-                }
-            }
+        mint sum(0);
+        for(int j = 0; j < 6; j++){
+            int a; cin >> a;
+            sum += a;
         }
+        ans *= sum;
     }
 
-    cout << ans << endl;
+    // (a1+a2+a3)(b1+b2+b3)(c1+c2+c3)のような形は展開したら総当たりと一緒なので
+    cout << ans.val() << endl;
     return 0;
 }
