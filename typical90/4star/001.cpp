@@ -3,46 +3,41 @@ using namespace std;
 using ll = long long;
 #define ALL(x) (x).begin(), (x).end()
 #define RALL(x) (x).rbegin(), (x).rend()
+template<class T> inline bool isRange(const T &x, const T &l, const T &r){ return l <= x && x < r; }
+template<class T> inline bool chmin(T &a, const T &b){ if(a > b){ a = b; return true; } return false; }
+template<class T> inline bool chmax(T &a, const T &b){ if(a < b){ a = b; return true; } return false; }
 
 int main(){
-    int N,L; cin >> N >> L;
-    int K; cin >> K;
-
-    vector<int> A(N);
-    for(int i = 0; i < N; i++){
+    ll N,L,K; cin >> N >> L >> K;
+    vector<ll> A(N+1,0);
+    for(int i = 1; i <= N; i++){
         cin >> A[i];
     }
+    A.push_back(L);
 
-    // 答えの上界はL, 下界は0になるのでにぶたんできる
-    // O(N log_L)
-    int l = 0;
-    int r = L;
-    while(abs(r-l) > 1){
-        // fprintf(stderr, "l=%d, r=%d\n", l, r);
-        int d = (r+l)/2;
+    int ok = 0;
+    int ng = L;
+    while(abs(ok-ng) >= 2){
+        int mid = (ok+ng)/2;
 
-        int k = 0;
-        int now = 0;
-        for(int i = 0; i <= N; i++){
-            // fprintf(stderr, "now=%d\n", now);
-            if(A[i] - now >= d && k < K){
-                // fprintf(stderr, "%d ", i);
-                now = A[i];
-                k++;
+        ll split = 0;
+        int prev = 0;
+        for(int i = 1; i <= N+1; i++){
+            if(A[i] - A[prev] >= mid){
+                // cout << A[i] - A[prev] << endl;
+
+                prev = i;
+                split++; // mid以上のようかんをsplit個分作れる
             }
         }
-        if(L - now < d){
-            r = d;
-            continue;
-        }
 
-        if(k < K){
-            r = d;
+        if(split >= K+1){
+            ok = mid;
         }else{
-            l = d;
+            ng = mid;
         }
     }
 
-    cout << l << endl;
+    cout << ok << endl;
     return 0;
 }
