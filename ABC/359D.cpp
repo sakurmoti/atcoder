@@ -16,13 +16,6 @@ int main(){
     string S; cin >> S;
     S.insert(S.begin(), ' ');
     
-    /*
-    dp[T][P] := Tに含まれる?をA,Bに変えた文字列のうち、
-        ・良い文字列
-        ・末尾min(K-1, |T|)文字がPと等しい
-    を満たす組合せの個数
-    */
-    
     
     return 0;
 }
