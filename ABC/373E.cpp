@@ -13,8 +13,13 @@ template<class T> inline bool chmax(T &a, const T &b){ if(a < b){ a = b; return 
 
 int main(){
     ll N,M,K; cin >> N >> M >> K;
-    vector<ll> A(N);
+    vector<ll> A(N), ans(N, 0);
     for(auto &_v : A) cin >> _v;
+
+    if(N==M){
+        for(auto &_v : ans) cout << _v << " "; cout << endl;
+        return 0;
+    }
 
     ll modulo = K - accumulate(ALL(A), 0LL);
     cout << modulo << endl;
@@ -32,37 +37,20 @@ int main(){
     }
     sub = B[M].second;
 
-    vector<ll> ans(N);
     for(int i = 0; i < N; i++){
         ll ok = modulo+1;
         ll ng = -1;
         while(abs(ok-ng)>=2){
             ll mid = (ok+ng)/2; // mid票獲得した場合
 
-            ll me = A[i] + mid;
-            ll block = (me+1)*M;
+            ll border = A[i] + mid + 1;
             ll mod = modulo - mid;
 
-            // 上位Mに入る場合
-            if(st.contains(i)){
-                if(block - (top-A[i]+A[sub]) >= mod){
-                    ng = mid;
-                }else{
-                    ok = mid;
-                }
             
-            }else{
-                if(block - top >= mod){
-                    ng = mid;
-                }else{
-                    ok = mid;
-                }
-
-            }
         }
 
         cout << ok << endl;
-        if(ok>modulo){
+        if(ok==modulo+1){
             ans[i] = -1;
         }else{
             ans[i] = ok;

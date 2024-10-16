@@ -12,37 +12,33 @@ template<class T> inline bool chmin(T &a, const T &b){ if(a > b){ a = b; return 
 template<class T> inline bool chmax(T &a, const T &b){ if(a < b){ a = b; return true; } return false; }
 
 int main(){
-    int N,Q; cin >> N >> Q;
-
-    vector<set<int>> st(N);
-    int ans = N;
+    int Q; cin >> Q;
+    
+    priority_queue<int, vector<int>, greater<int>> pque;
+    deque<int> deq;
     while(Q--){
-        int q; cin >> q;
-
+        int q,x; cin >> q;
         if(q==1){
-            int u,v; cin >> u >> v;
-            u--; v--;
-            if(st[u].empty()) ans--;
-            if(st[v].empty()) ans--;
-
-            st[u].insert(v);
-            st[v].insert(u);
+            cin >> x;
+            deq.push_back(x);
+        
+        }else if(q==2){
+            if(!pque.empty()){
+                x = pque.top();
+                pque.pop();
+            }else{
+                x = deq.front();
+                deq.pop_front();
+            }
+            cout << "\t";
+            cout << x << endl;
 
         }else{
-            int v; cin >> v;
-            v--;
-            for(auto u : st[v]){
-                st[u].erase(v);
-                if(st[u].empty()) ans++;
+            while(!deq.empty()){
+                pque.push(deq.front());
+                deq.pop_front();
             }
-            if(!st[v].empty()){
-                st[v].clear();
-                ans++;
-            }
-
         }
-        // cout << "\t";
-        cout << ans << endl;
     }
     return 0;
 }
