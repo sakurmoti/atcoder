@@ -12,21 +12,25 @@ template<class T> inline bool chmin(T &a, const T &b){ if(a > b){ a = b; return 
 template<class T> inline bool chmax(T &a, const T &b){ if(a < b){ a = b; return true; } return false; }
 
 int main(){
-    int N; cin >> N;
-    vector<ll> H(N);
-    for(auto &_v : H) cin >> _v;
-
-    vector<ll> ans(N+1, 0);
-    // pque(u,v) := 壁の高さu, インデックスをv
-    priority_queue<pair<int,int>, vector<pair<int, int>>, greater<pair<int, int>>> pque;
-    ll time = 0;
-    for(int i = 0; i < N; i++){
-        pque.push(make_pair(H[i], i+1));
-        while(!pque.empty()){
-            auto[h,idx] = pque.top();
-            pque.pop();
-        }
-
+    ll N,M; cin >> N >> M;
+    vector<ll> P(N+1, 0);
+    for(int i = 1; i <= N; i++){
+        cin >> P[i];
     }
+
+    // dp[i][j] := i番目までの商品をj個買った時の最小金額
+    vector<vector<ll>> dp(N+1, vector<ll>(300, 9e18));
+    for(int i = 0; i <= N; i++){
+        dp[i][0] = 0;
+    }
+
+    for(int i = 1; i <= N; i++){
+        for(int j = 0; j < 300; j++){
+            for(int k = 0; k < 300-j; k++){
+                
+            }
+        }
+    }
+    
     return 0;
 }
